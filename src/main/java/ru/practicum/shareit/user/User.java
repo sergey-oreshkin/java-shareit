@@ -6,9 +6,8 @@ import lombok.Data;
 import javax.validation.constraints.Email;
 
 @Data
-@Builder
 public class User {
-    private long id;
+    private Long id;
     private String name;
     @Email
     private String email;

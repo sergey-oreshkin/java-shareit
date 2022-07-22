@@ -1,12 +1,14 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class ItemDto {
-    long id;
+    Long id;
     String name;
     String description;
-    long owner;
-    boolean available;
+    Long owner;
+    Boolean available;
 }

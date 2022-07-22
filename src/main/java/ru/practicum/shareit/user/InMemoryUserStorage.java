@@ -19,20 +19,20 @@ public class InMemoryUserStorage {
         return new ArrayList<>(storage.values());
     }
 
-    public Optional<UserDto> findById(long id) {
+    public Optional<UserDto> findById(Long id) {
         return storage.containsKey(id) ? Optional.of(storage.get(id)) : Optional.empty();
     }
 
-    public UserDto save(UserDto user) {
-        if (emails.contains(user.getEmail())) {
+    public UserDto save(UserDto userDto) {
+        if (emails.contains(userDto.getEmail())) {
             throw new ConflictException("Email already exist");
         }
-        if (user.getId() == 0) {
-            user.setId(getNextId());
+        if (userDto.getId() == 0) {
+            userDto.setId(getNextId());
         }
-        emails.add(user.getEmail());
-        storage.put(user.getId(), user);
-        return user;
+        emails.add(userDto.getEmail());
+        storage.put(userDto.getId(), userDto);
+        return userDto;
     }
 
     public UserDto deleteById(long id) {

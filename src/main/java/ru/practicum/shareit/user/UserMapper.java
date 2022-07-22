@@ -1,10 +1,11 @@
 package ru.practicum.shareit.user;
 
 import ru.practicum.shareit.user.dto.UserDto;
+import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@org.mapstruct.Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     default UserDto dtoForUpdate(UserDto userDto, User update) {

@@ -12,7 +12,6 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +21,7 @@ public class UserService {
 
     private final UserMapper userMapper;
 
-    public List<User> getUsers() {
+    public List<User> getAll() {
         return userMapper.fromListDto(userStorage.findAll());
     }
 
@@ -33,10 +32,9 @@ public class UserService {
     }
 
     public User create(User user) {
-        Optional<UserDto> userDto = userStorage.findById(user.getId());
-        if (userDto.isPresent()) {
+        userStorage.findById(user.getId()).ifPresent(userDto -> {
             throw new ValidationException("User already exist");
-        }
+        });
         if (user.getEmail() == null) {
             throw new ValidationException("Email cant be null");
         }
