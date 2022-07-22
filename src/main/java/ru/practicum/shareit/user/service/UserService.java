@@ -52,7 +52,7 @@ public class UserService {
         try {
             return userMapper.fromDto(userStorage.save(userForUpdate));
         } catch (ConflictException e) {
-            userMapper.fromDto(userStorage.save(userDto));
+            userStorage.save(userDto);
             throw new ConflictException(e.getMessage());
         }
     }
