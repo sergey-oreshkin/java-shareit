@@ -7,9 +7,9 @@ import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.InMemoryUserStorage;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.models.User;
+import ru.practicum.shareit.user.models.UserDto;
 
 import java.util.List;
 
@@ -21,43 +21,44 @@ public class UserService {
 
     private final UserMapper userMapper;
 
-    public List<User> getAll() {
-        return userMapper.fromListDto(userStorage.findAll());
+    public List<UserDto> getAll() {
+        return userMapper.toListDto(userStorage.findAll());
     }
 
-    public User getUser(long id) {
-        return userMapper.fromDto(userStorage.findById(id)
+    public UserDto getUser(long id) {
+        return userMapper.toDto(userStorage.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with id=" + id + " not found"))
         );
     }
 
-    public User create(User user) {
-        userStorage.findById(user.getId()).ifPresent(userDto -> {
+    public UserDto create(UserDto userDto) {
+        userStorage.findById(userDto.getId()).ifPresent(user -> {
             throw new ValidationException("User already exist");
         });
-        if (user.getEmail() == null) {
+        if (userDto.getEmail() == null) {
             throw new ValidationException("Email cant be null");
         }
-        if (user.getName() == null) {
+        if (userDto.getName() == null) {
             throw new ValidationException("Name cant be null");
         }
-        user.setId(0L);
-        return userMapper.fromDto(userStorage.save(userMapper.toDto(user)));
+        userDto.setId(0L);
+        return userMapper.toDto(userStorage.save(userMapper.fromDto(userDto)));
     }
 
-    public User update(User user, long id) {
-        user.setId(id);
-        UserDto userDto = userMapper.toDto(delete(id));
-        UserDto userForUpdate = userMapper.dtoForUpdate(userDto, user);
+    public UserDto update(UserDto userDto, long id) {
+        userDto.setId(id);
+        UserDto oldUser = delete(id);
+        User user = userMapper.fromDto(oldUser);
+        userMapper.updateUserFromDto(userDto, user); // mutate user
         try {
-            return userMapper.fromDto(userStorage.save(userForUpdate));
+            return userMapper.toDto(userStorage.save(user));
         } catch (ConflictException e) {
-            userStorage.save(userDto);
+            userStorage.save(userMapper.fromDto(oldUser));
             throw new ConflictException(e.getMessage());
         }
     }
 
-    public User delete(long id) {
-        return userMapper.fromDto(userStorage.deleteById(id));
+    public UserDto delete(long id) {
+        return userMapper.toDto(userStorage.deleteById(id));
     }
 }

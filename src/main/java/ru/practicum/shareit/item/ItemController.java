@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.models.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.constraints.NotNull;
@@ -17,30 +18,29 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<Item> getAllByUserId(@RequestHeader("X-Sharer-User-Id") @NotNull long userId) {
+    public List<ItemDto> getAllByUserId(@RequestHeader("X-Sharer-User-Id") @NotNull long userId) {
         return itemService.getAllByUserId(userId);
     }
 
     @GetMapping("{id}")
-    public Item getItem(@PathVariable long id) {
+    public ItemDto getItem(@PathVariable long id) {
         return itemService.getItem(id);
     }
 
     @PostMapping
-    public Item create(@RequestHeader("X-Sharer-User-Id") @NotNull long userId, @RequestBody Item item) {
-        return itemService.create(item, userId);
+    public ItemDto create(@RequestHeader("X-Sharer-User-Id") @NotNull long userId, @RequestBody ItemDto itemDto) {
+        return itemService.create(itemDto, userId);
     }
 
     @PatchMapping("{id}")
-    public Item update(@RequestHeader("X-Sharer-User-Id") @NotNull long userId,
-                       @RequestBody Item item, @PathVariable long id) {
-        return itemService.update(item, id, userId);
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") @NotNull long userId,
+                          @RequestBody ItemDto itemDto, @PathVariable long id) {
+        return itemService.update(itemDto, id, userId);
     }
 
     @GetMapping("/search")
-    public List<Item> search(@RequestParam(name = "text", defaultValue = "") String text) {
-        if (text.isEmpty()) return Collections.emptyList();
-        return itemService.search(text);
+    public List<ItemDto> searchByKeyword(@RequestParam(name = "text", defaultValue = "") String keyword) {
+        if (keyword.isEmpty()) return Collections.emptyList();
+        return itemService.searchByKeyword(keyword);
     }
-
 }

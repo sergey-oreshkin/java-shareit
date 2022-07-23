@@ -1,14 +1,14 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.item.models;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class ItemDto {
+public class Item {
     Long id;
     String name;
     String description;
-    Long owner;
+    Long ownerId;
     Boolean available;
 }

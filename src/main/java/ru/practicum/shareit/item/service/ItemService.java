@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.InMemoryItemStorage;
-import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemMapper;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.models.Item;
+import ru.practicum.shareit.item.models.ItemDto;
 import ru.practicum.shareit.user.InMemoryUserStorage;
 
 import java.util.List;
@@ -22,43 +22,41 @@ public class ItemService {
 
     private final ItemMapper itemMapper;
 
-    public List<Item> getAllByUserId(Long userId) {
+    public List<ItemDto> getAllByUserId(Long userId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User with id=" + userId + " not found"));
-        return itemMapper.fromListDto(itemStorage.findAllByUserId(userId));
+        return itemMapper.toListDto(itemStorage.findAllByUserId(userId));
     }
 
-    public Item getItem(long id) {
-        return itemMapper.fromDto(itemStorage.findById(id)
+    public ItemDto getItem(long id) {
+        return itemMapper.toDto(itemStorage.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item with id=" + id + "not found"))
         );
     }
 
-    public Item create(Item item, long userId) {
+    public ItemDto create(ItemDto itemDto, long userId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User with id=" + userId + " not found"));
-        ItemDto itemDto = itemMapper.toDto(item);
-        if (itemDto.getAvailable() == null
-                || itemDto.getDescription() == null
-                || itemDto.getName() == null
-                || itemDto.getName().isEmpty()) {
+        Item item = itemMapper.fromDto(itemDto);
+        if (item.getAvailable() == null
+                || item.getDescription() == null
+                || item.getName() == null
+                || item.getName().isEmpty()) {
             throw new ValidationException("Incomplete data");
         }
-        itemDto.setOwner(userId);
-        return itemMapper.fromDto(itemStorage.save(itemDto));
+        item.setOwnerId(userId);
+        return itemMapper.toDto(itemStorage.save(item));
     }
 
-    public Item update(Item item, long itemId, long userId) {
-        ItemDto itemDto = itemStorage.findById(itemId)
+    public ItemDto update(ItemDto itemDto, long itemId, long userId) {
+        Item item = itemStorage.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item with id=" + userId + "not found"));
-        if (itemDto.getOwner() != userId) {
+        if (item.getOwnerId() != userId) {
             throw new NotFoundException("Wrong owner");
         }
-        ItemDto itemForUpdate = itemMapper.dtoForUpdate(itemDto, item);
-        itemForUpdate.setId(itemId);
-        itemForUpdate.setOwner(userId);
-        return itemMapper.fromDto(itemStorage.save(itemForUpdate));
+        itemMapper.updateItemFromDto(itemDto, item); // mutate item
+        return itemMapper.toDto(itemStorage.save(item));
     }
 
-    public List<Item> search(String text) {
-        return itemMapper.fromListDto(itemStorage.searchByName(text));
+    public List<ItemDto> searchByKeyword(String keyword) {
+        return itemMapper.toListDto(itemStorage.searchByKeyword(keyword));
     }
 }

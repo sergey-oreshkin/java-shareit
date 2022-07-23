@@ -1,9 +1,9 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.models;
 
 import lombok.Data;
 
 @Data
-public class Item {
+public class ItemDto {
     private Long id;
     private String name;
     private String description;
