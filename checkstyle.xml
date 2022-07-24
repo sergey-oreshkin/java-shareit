@@ -172,7 +172,7 @@
 			<property name="allowLineBreaks" value="true"/>
 			<property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, DOT, ELLIPSIS, METHOD_REF"/>
 		</module>
-		<module name="ParenPad"/>
+<!--		<module name="ParenPad"/>-->
 		<module name="OperatorWrap">
 			<property name="severity" value="ignore"/>
 			<property name="option" value="NL"/>
