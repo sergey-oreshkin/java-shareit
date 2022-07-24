@@ -23,7 +23,7 @@ public class InMemoryItemStorage {
     }
 
     public Optional<Item> findById(Long id) {
-        return storage.containsKey(id) ? Optional.of(storage.get(id)) : Optional.empty();
+        return Optional.ofNullable(storage.get(id));
     }
 
     public Item save(Item item) {

@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 @Builder
 public class Item {
-    Long id;
-    String name;
-    String description;
-    Long ownerId;
-    Boolean available;
+    private Long id;
+    private String name;
+    private String description;
+    private Long ownerId;
+    private Boolean available;
 }
