@@ -6,8 +6,8 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.InMemoryItemStorage;
 import ru.practicum.shareit.item.ItemMapper;
-import ru.practicum.shareit.item.models.Item;
-import ru.practicum.shareit.item.models.ItemDto;
+import ru.practicum.shareit.item.entity.Item;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.InMemoryUserStorage;
 
 import java.util.List;

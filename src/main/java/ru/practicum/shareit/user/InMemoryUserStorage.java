@@ -3,7 +3,7 @@ package ru.practicum.shareit.user;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.models.User;
+import ru.practicum.shareit.user.entity.User;
 
 import java.util.*;
 
