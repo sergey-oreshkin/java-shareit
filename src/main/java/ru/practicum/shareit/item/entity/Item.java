@@ -23,9 +23,9 @@ public class Item {
 
     private String description;
 
-//    @ManyToOne
-//    @JoinColumn(name = "owner_id")
-    private Long ownerId;
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     private Boolean available;
 }
