@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.service;
 
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -15,7 +15,7 @@ public interface ItemMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateItemFromDto(ItemDto itemDto, @MappingTarget Item item);
 
-    List<ItemDto> toListDto(List<Item> users);
+    List<ItemDto> toDto(List<Item> users);
 
     Item fromDto(ItemDto item);
 

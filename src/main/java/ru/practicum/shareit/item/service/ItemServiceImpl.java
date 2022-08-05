@@ -5,7 +5,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.entity.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -29,11 +28,11 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getAllByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " not found"));
-        return itemMapper.toListDto(itemRepository.findItemsByOwner(user));
+        return itemMapper.toDto(itemRepository.findAllByOwner(user));
     }
 
     @Override
-    public ItemDto get(long id) {
+    public ItemDto getById(long id) {
         return itemMapper.toDto(itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item with id=" + id + "not found"))
         );
@@ -72,6 +71,6 @@ public class ItemServiceImpl implements ItemService {
         List<Item> list = itemRepository.findAll(example).stream()
                 .filter(Item::getAvailable)
                 .collect(Collectors.toList());
-        return itemMapper.toListDto(list);
+        return itemMapper.toDto(list);
     }
 }
