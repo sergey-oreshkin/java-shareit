@@ -5,12 +5,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.shareit.booking.service.BookingMapper;
+import ru.practicum.shareit.item.comment.service.CommentMapper;
 import ru.practicum.shareit.item.database.Item;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {BookingMapper.class})
+@Mapper(componentModel = "spring", uses = {BookingMapper.class, CommentMapper.class})
 public interface ItemMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

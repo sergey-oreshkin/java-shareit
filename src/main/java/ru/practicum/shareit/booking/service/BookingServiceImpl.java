@@ -11,7 +11,6 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.database.Item;
 import ru.practicum.shareit.item.database.ItemRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -60,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getAllByBooker(Long userId, State state) {
-        List<Booking> bookings = new ArrayList<>();
+        List<Booking> bookings;
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findAllByBooker_IdOrderByStartTimeDesc(userId);
@@ -94,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
         if (items.isEmpty()) {
             throw new NotFoundException("It makes no sense");
         }
-        List<Booking> bookings = new ArrayList<>();
+        List<Booking> bookings;
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findAllByItemInOrderByStartTimeDesc(items);

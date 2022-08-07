@@ -6,14 +6,14 @@ import ru.practicum.shareit.booking.database.Booking;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.dto.BookingOutputDto;
 import ru.practicum.shareit.booking.dto.ShortBookingDto;
-import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.item.service.ItemFactory;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
 @Mapper(
         componentModel = "spring",
-        uses = {UserService.class, ItemService.class}
+        uses = {UserService.class, ItemFactory.class}
 )
 public interface BookingMapper {
 

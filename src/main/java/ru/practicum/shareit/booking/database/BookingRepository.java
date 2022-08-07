@@ -13,10 +13,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllByBooker_IdAndStatusOrderByStartTimeDesc(long userId, BookingStatus status);
 
-    @Query("select b from Booking b where b.booker.id=?1 and b.endTime < current_date order by b.startTime desc")
+    @Query("select b from Booking b where b.booker.id=?1 and b.endTime < current_timestamp order by b.startTime desc")
     List<Booking> findAllByBookerAndPast(long userId);
 
-    @Query("select b from Booking b where b.booker.id=?1 and b.startTime > current_date order by b.startTime desc")
+    @Query("select b from Booking b where b.booker.id=?1 and b.startTime > current_timestamp order by b.startTime desc")
     List<Booking> findAllByBookerAndFuture(long userId);
 
     @Query("select b from Booking b where b.booker.id=?1 " +

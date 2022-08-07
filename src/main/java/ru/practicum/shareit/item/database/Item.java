@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
 import ru.practicum.shareit.booking.database.Booking;
+import ru.practicum.shareit.item.comment.database.Comment;
 import ru.practicum.shareit.user.database.User;
 
 import javax.persistence.*;
@@ -35,13 +36,17 @@ public class Item {
     @JsonIgnore
     private Set<Booking> bookings = new HashSet<>();
 
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Comment> comments = new HashSet<>();
+
     private Boolean available;
 
     @Transient
-    Booking lastBooking;
+    private Booking lastBooking;
 
     @Transient
-    Booking nextBooking;
+    private Booking nextBooking;
 
     @Override
     public boolean equals(Object o) {
