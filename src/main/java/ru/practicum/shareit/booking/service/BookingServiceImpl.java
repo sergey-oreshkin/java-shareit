@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.database.Item;
 import ru.practicum.shareit.item.database.ItemRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking create(Long userId, Booking booking) {
         booking.setStatus(BookingStatus.WAITING);
-        if (booking.getItem().getOwner().getId() == userId) {
+        if (Objects.equals(booking.getItem().getOwner().getId(), userId)) {
             throw new NotFoundException("Owner can use it whenever want");
         }
         if (booking.getItem().getAvailable()) {
@@ -37,7 +38,8 @@ public class BookingServiceImpl implements BookingService {
     public Booking getById(Long userId, Long id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
-        if (booking.getBooker().getId() == userId || booking.getItem().getOwner().getId() == userId) {
+        if (Objects.equals(booking.getBooker().getId(), userId)
+                || Objects.equals(booking.getItem().getOwner().getId(), userId)) {
             return booking;
         }
         throw new NotFoundException("Wrong user");
@@ -50,7 +52,7 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getStatus() != BookingStatus.WAITING) {
             throw new ValidationException("Booking already approved");
         }
-        if (booking.getItem().getOwner().getId() != userId) {
+        if (!Objects.equals(booking.getItem().getOwner().getId(), userId)) {
             throw new NotFoundException("Only for owner available");
         }
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);

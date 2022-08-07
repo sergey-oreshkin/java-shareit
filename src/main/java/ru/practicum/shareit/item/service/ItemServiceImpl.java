@@ -45,27 +45,27 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item getById(long id, long userId) {
+    public Item getById(Long id, Long userId) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item with id=" + id + "not found"));
-        if (item.getOwner().getId() == userId) {
+        if (Objects.equals(item.getOwner().getId(), userId)) {
             item = addLastAndNextBookings(item);
         }
         return item;
     }
 
     @Override
-    public Item create(Item item, long userId) {
+    public Item create(Item item, Long userId) {
         User user = userService.get(userId);
         item.setOwner(user);
         return itemRepository.save(item);
     }
 
     @Override
-    public Item update(ItemDto itemDto, long itemId, long userId) {
+    public Item update(ItemDto itemDto, Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item with id=" + userId + "not found"));
-        if (item.getOwner().getId() != userId) {
+        if (!Objects.equals(item.getOwner().getId(), userId)) {
             throw new NotFoundException("Wrong owner");
         }
         itemMapper.updateItemFromDto(itemDto, item);

@@ -9,11 +9,11 @@ import java.util.List;
 public interface ItemService {
     List<Item> getAllByUserId(Long userId);
 
-    Item getById(long id, long userId);
+    Item getById(Long id, Long userId);
 
-    Item create(Item item, long userId);
+    Item create(Item item, Long userId);
 
-    Item update(ItemDto itemDto, long itemId, long userId);
+    Item update(ItemDto itemDto, Long itemId, Long userId);
 
     List<Item> searchByKeyword(String keyword);
 

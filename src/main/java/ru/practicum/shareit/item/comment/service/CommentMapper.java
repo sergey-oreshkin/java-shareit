@@ -23,5 +23,5 @@ public interface CommentMapper {
 
     @Mapping(source = "itemId", target = "item")
     @Mapping(source = "userId", target = "author")
-    Comment fromDto(CommentDto commentDto, long itemId, long userId);
+    Comment fromDto(CommentDto commentDto, Long itemId, Long userId);
 }

@@ -19,7 +19,7 @@ public interface BookingMapper {
 
     @Mapping(source = "bookingDto.itemId", target = "item")
     @Mapping(source = "userId", target = "booker")
-    Booking fromDto(BookingInputDto bookingDto, long userId);
+    Booking fromDto(BookingInputDto bookingDto, Long userId);
 
     @Mapping(source = "booker.id", target = "bookerId")
     ShortBookingDto toShortDto(Booking booking);

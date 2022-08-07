@@ -4,6 +4,10 @@
 	<property name="severity" value="error"/>
 	<property name="charset" value="UTF-8"/>
 	<property name="fileExtensions" value="java, properties, xml"/>
+	<module name="SuppressionFilter">
+		<property name="file" value="suppressions.xml"/>
+		<property name="optional" value="false"/>
+	</module>
 	<module name="LineLength">
 		<property name="severity" value="ignore"/>
 		<property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>

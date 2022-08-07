@@ -9,19 +9,19 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findAllByBooker_IdOrderByStartTimeDesc(long userId);
+    List<Booking> findAllByBooker_IdOrderByStartTimeDesc(Long userId);
 
-    List<Booking> findAllByBooker_IdAndStatusOrderByStartTimeDesc(long userId, BookingStatus status);
+    List<Booking> findAllByBooker_IdAndStatusOrderByStartTimeDesc(Long userId, BookingStatus status);
 
     @Query("select b from Booking b where b.booker.id=?1 and b.endTime < current_timestamp order by b.startTime desc")
-    List<Booking> findAllByBookerAndPast(long userId);
+    List<Booking> findAllByBookerAndPast(Long userId);
 
     @Query("select b from Booking b where b.booker.id=?1 and b.startTime > current_timestamp order by b.startTime desc")
-    List<Booking> findAllByBookerAndFuture(long userId);
+    List<Booking> findAllByBookerAndFuture(Long userId);
 
     @Query("select b from Booking b where b.booker.id=?1 " +
             "and current_date between b.startTime and b.endTime order by b.startTime desc")
-    List<Booking> findAllByBookerAndCurrent(long userId);
+    List<Booking> findAllByBookerAndCurrent(Long userId);
 
     List<Booking> findAllByItemInOrderByStartTimeDesc(List<Item> items);
 
