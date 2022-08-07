@@ -2,16 +2,14 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.database.Booking;
+import ru.practicum.shareit.booking.database.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingStatus;
 import ru.practicum.shareit.booking.dto.State;
-import ru.practicum.shareit.booking.entity.Booking;
-import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.entity.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.database.Item;
+import ru.practicum.shareit.item.database.ItemRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,33 +22,30 @@ public class BookingServiceImpl implements BookingService {
 
     public final ItemRepository itemRepository;
 
-    private final BookingMapper bookingMapper;
-
     @Override
-    public BookingResponseDto create(Long userId, BookingRequestDto bookingRequestDto) {
-        bookingRequestDto.setStatus(BookingStatus.WAITING);
-        Booking booking = bookingMapper.fromDto(bookingRequestDto, userId);
+    public Booking create(Long userId, Booking booking) {
+        booking.setStatus(BookingStatus.WAITING);
         if (booking.getItem().getOwner().getId() == userId) {
             throw new NotFoundException("Owner can use it whenever want");
         }
         if (booking.getItem().getAvailable()) {
-            return bookingMapper.toDto(bookingRepository.save(booking));
+            return bookingRepository.save(booking);
         }
         throw new ValidationException("Item is not available");
     }
 
     @Override
-    public BookingResponseDto getById(Long userId, Long id) {
+    public Booking getById(Long userId, Long id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
         if (booking.getBooker().getId() == userId || booking.getItem().getOwner().getId() == userId) {
-            return bookingMapper.toDto(booking);
+            return booking;
         }
         throw new NotFoundException("Wrong user");
     }
 
     @Override
-    public BookingResponseDto approve(Long userId, Long bookingId, Boolean approved) {
+    public Booking approve(Long userId, Long bookingId, Boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking with id=" + bookingId + "not found"));
         if (booking.getStatus() != BookingStatus.WAITING) {
@@ -60,11 +55,11 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Only for owner available");
         }
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
-        return bookingMapper.toDto(bookingRepository.save(booking));
+        return bookingRepository.save(booking);
     }
 
     @Override
-    public List<BookingResponseDto> getAllByBooker(Long userId, State state) {
+    public List<Booking> getAllByBooker(Long userId, State state) {
         List<Booking> bookings = new ArrayList<>();
         switch (state) {
             case ALL:
@@ -90,11 +85,11 @@ public class BookingServiceImpl implements BookingService {
         if (bookings.isEmpty()) {
             throw new NotFoundException("Not found");
         }
-        return bookingMapper.toDto(bookings);
+        return bookings;
     }
 
     @Override
-    public List<BookingResponseDto> getAllByItemsOwner(Long userId, State state) {
+    public List<Booking> getAllByItemsOwner(Long userId, State state) {
         List<Item> items = itemRepository.findAllByOwner_Id(userId);
         if (items.isEmpty()) {
             throw new NotFoundException("It makes no sense");
@@ -125,6 +120,6 @@ public class BookingServiceImpl implements BookingService {
         if (bookings.isEmpty()) {
             throw new NotFoundException("Not found");
         }
-        return bookingMapper.toDto(bookings);
+        return bookings;
     }
 }

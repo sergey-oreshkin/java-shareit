@@ -1,9 +1,8 @@
-package ru.practicum.shareit.item.repository;
+package ru.practicum.shareit.item.database;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.QueryByExampleExecutor;
-import ru.practicum.shareit.item.entity.Item;
-import ru.practicum.shareit.user.entity.User;
+import ru.practicum.shareit.user.database.User;
 
 import java.util.List;
 

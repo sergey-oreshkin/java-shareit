@@ -3,9 +3,11 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.database.Booking;
+import ru.practicum.shareit.booking.dto.BookingInputDto;
+import ru.practicum.shareit.booking.dto.BookingOutputDto;
 import ru.practicum.shareit.booking.dto.State;
+import ru.practicum.shareit.booking.service.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
@@ -20,39 +22,42 @@ public class BookingController {
 
     private final BookingService bookingService;
 
+    private final BookingMapper bookingMapper;
+
     @PostMapping
-    public BookingResponseDto create(
+    public BookingOutputDto create(
             @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
-            @Valid @RequestBody BookingRequestDto bookingRequestDto) {
-        return bookingService.create(userId, bookingRequestDto);
+            @Valid @RequestBody BookingInputDto bookingDto) {
+        Booking booking = bookingMapper.fromDto(bookingDto, userId);
+        return bookingMapper.toDto(bookingService.create(userId, booking));
     }
 
     @GetMapping("{bookingId}")
-    public BookingResponseDto get(
+    public BookingOutputDto get(
             @PathVariable Long bookingId,
             @RequestHeader("X-Sharer-User-Id") @NotNull Long userId) {
-        return bookingService.getById(userId, bookingId);
+        return bookingMapper.toDto(bookingService.getById(userId, bookingId));
     }
 
     @PatchMapping("{bookingId}")
-    public BookingResponseDto approve(
+    public BookingOutputDto approve(
             @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
             @PathVariable @NotNull Long bookingId,
             @RequestParam @NotNull Boolean approved) {
-        return bookingService.approve(userId, bookingId, approved);
+        return bookingMapper.toDto(bookingService.approve(userId, bookingId, approved));
     }
 
     @GetMapping
-    public List<BookingResponseDto> getAllByBooker(
+    public List<BookingOutputDto> getAllByBooker(
             @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
             @RequestParam(defaultValue = "ALL") State state) {
-        return bookingService.getAllByBooker(userId, state);
+        return bookingMapper.toDto(bookingService.getAllByBooker(userId, state));
     }
 
     @GetMapping("owner")
-    public List<BookingResponseDto> getAllByItemsOwner(
+    public List<BookingOutputDto> getAllByItemsOwner(
             @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
             @RequestParam(defaultValue = "ALL") State state) {
-        return bookingService.getAllByItemsOwner(userId, state);
+        return bookingMapper.toDto(bookingService.getAllByItemsOwner(userId, state));
     }
 }

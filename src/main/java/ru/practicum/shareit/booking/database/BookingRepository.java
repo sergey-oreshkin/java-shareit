@@ -1,10 +1,9 @@
-package ru.practicum.shareit.booking.repository;
+package ru.practicum.shareit.booking.database;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.dto.BookingStatus;
-import ru.practicum.shareit.booking.entity.Booking;
-import ru.practicum.shareit.item.entity.Item;
+import ru.practicum.shareit.item.database.Item;
 
 import java.util.List;
 
