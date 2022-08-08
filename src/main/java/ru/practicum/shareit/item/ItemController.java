@@ -39,7 +39,8 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto create(@RequestHeader("X-Sharer-User-Id") @NotNull Long userId, @Valid @RequestBody ItemDto itemDto) {
+    public ItemDto create(@RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
+                          @Valid @RequestBody ItemDto itemDto) {
         Item item = itemMapper.fromDto(itemDto);
         return itemMapper.toDto(itemService.create(item, userId));
     }

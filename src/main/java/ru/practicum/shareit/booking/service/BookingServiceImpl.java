@@ -11,8 +11,12 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.database.Item;
 import ru.practicum.shareit.item.database.ItemRepository;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,66 +65,52 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getAllByBooker(Long userId, State state) {
-        List<Booking> bookings;
-        switch (state) {
-            case ALL:
-                bookings = bookingRepository.findAllByBooker_IdOrderByStartTimeDesc(userId);
-                break;
-            case WAITING:
-            case REJECTED:
-                BookingStatus status = BookingStatus.valueOf(state.toString());
-                bookings = bookingRepository.findAllByBooker_IdAndStatusOrderByStartTimeDesc(userId, status);
-                break;
-            case PAST:
-                bookings = bookingRepository.findAllByBookerAndPast(userId);
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findAllByBookerAndFuture(userId);
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findAllByBookerAndCurrent(userId);
-                break;
-            default:
-                throw new RuntimeException("State is undefined");
-        }
+        List<Booking> bookings = bookingRepository.findAllByBooker_IdOrderByStartTimeDesc(userId);
         if (bookings.isEmpty()) {
-            throw new NotFoundException("Not found");
+            throw new NotFoundException("It makes no sense");
         }
-        return bookings;
+        return getBookingsByState(state, bookings);
     }
 
     @Override
     public List<Booking> getAllByItemsOwner(Long userId, State state) {
         List<Item> items = itemRepository.findAllByOwner_Id(userId);
-        if (items.isEmpty()) {
+        List<Booking> bookings = items.stream()
+                .map(Item::getBookings)
+                .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(Booking::getStartTime).reversed())
+                .collect(Collectors.toList());
+        if (items.isEmpty() || bookings.isEmpty()) {
             throw new NotFoundException("It makes no sense");
         }
-        List<Booking> bookings;
+        return getBookingsByState(state, bookings);
+    }
+
+    private List<Booking> getBookingsByState(State state, List<Booking> bookings) {
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findAllByItemInOrderByStartTimeDesc(items);
-                break;
+                return bookings;
             case WAITING:
             case REJECTED:
                 BookingStatus status = BookingStatus.valueOf(state.toString());
-                bookings = bookingRepository.findAllByItemInAndStatusOrderByStartTimeDesc(items, status);
-                break;
+                return bookings.stream()
+                        .filter(booking -> booking.getStatus().equals(status))
+                        .collect(Collectors.toList());
             case PAST:
-                bookings = bookingRepository.findAllByItemsAndPast(items);
-                break;
+                return bookings.stream()
+                        .filter(booking -> LocalDateTime.now().isAfter(booking.getEndTime()))
+                        .collect(Collectors.toList());
             case FUTURE:
-                bookings = bookingRepository.findAllByItemsAndFuture(items);
-                break;
+                return bookings.stream()
+                        .filter(booking -> LocalDateTime.now().isBefore(booking.getStartTime()))
+                        .collect(Collectors.toList());
             case CURRENT:
-                bookings = bookingRepository.findAllByItemsAndCurrent(items);
-                break;
+                return bookings.stream()
+                        .filter(booking -> LocalDateTime.now().isAfter(booking.getStartTime())
+                                && LocalDateTime.now().isBefore(booking.getEndTime()))
+                        .collect(Collectors.toList());
             default:
                 throw new RuntimeException("State is undefined");
         }
-
-        if (bookings.isEmpty()) {
-            throw new NotFoundException("Not found");
-        }
-        return bookings;
     }
 }
