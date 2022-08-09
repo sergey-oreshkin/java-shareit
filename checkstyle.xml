@@ -4,6 +4,10 @@
 	<property name="severity" value="error"/>
 	<property name="charset" value="UTF-8"/>
 	<property name="fileExtensions" value="java, properties, xml"/>
+	<module name="SuppressionFilter">
+		<property name="file" value="suppressions.xml"/>
+		<property name="optional" value="false"/>
+	</module>
 	<module name="LineLength">
 		<property name="severity" value="ignore"/>
 		<property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
@@ -172,7 +176,7 @@
 			<property name="allowLineBreaks" value="true"/>
 			<property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, DOT, ELLIPSIS, METHOD_REF"/>
 		</module>
-<!--		<module name="ParenPad"/>-->
+		<module name="ParenPad"/>
 		<module name="OperatorWrap">
 			<property name="severity" value="ignore"/>
 			<property name="option" value="NL"/>

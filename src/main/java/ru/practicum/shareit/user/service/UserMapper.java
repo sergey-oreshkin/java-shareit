@@ -1,11 +1,12 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.service;
 
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import ru.practicum.shareit.user.models.User;
-import ru.practicum.shareit.user.models.UserDto;
+import ru.practicum.shareit.user.database.User;
+import ru.practicum.shareit.user.dto.PatchUserDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
@@ -13,9 +14,9 @@ import java.util.List;
 public interface UserMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    User updateUserFromDto(UserDto userDto, @MappingTarget User user);
+    User updateUserFromDto(PatchUserDto userDto, @MappingTarget User user);
 
-    List<UserDto> toListDto(List<User> users);
+    List<UserDto> toDto(List<User> users);
 
     User fromDto(UserDto userDto);
 
