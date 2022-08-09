@@ -32,11 +32,17 @@ public class Item {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "item",
+            orphanRemoval = true,
+            cascade = CascadeType.REMOVE,
+            fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Booking> bookings = new HashSet<>();
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "item",
+            orphanRemoval = true,
+            cascade = CascadeType.REMOVE,
+            fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Comment> comments = new HashSet<>();
 

@@ -21,22 +21,22 @@ import java.util.Objects;
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    LocalDateTime startTime;
+    private LocalDateTime startTime;
 
-    LocalDateTime endTime;
+    private LocalDateTime endTime;
 
     @ManyToOne
     @JoinColumn(name = "item_id")
-    Item item;
+    private Item item;
 
     @ManyToOne
     @JoinColumn(name = "booker_id")
-    User booker;
+    private User booker;
 
     @Enumerated(EnumType.STRING)
-    BookingStatus status;
+    private BookingStatus status;
 
     @Override
     public boolean equals(Object o) {

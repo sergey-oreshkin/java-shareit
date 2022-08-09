@@ -18,7 +18,9 @@ import ru.practicum.shareit.user.database.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,18 +103,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private Item addLastAndNextBookings(Item item) {
-        SortedSet<Booking> bookingsEndTimeSort = new TreeSet<>(Comparator.comparing(Booking::getEndTime).reversed());
-        bookingsEndTimeSort.addAll(item.getBookings());
-
-        SortedSet<Booking> bookingsStartTimeSort = new TreeSet<>(Comparator.comparing(Booking::getStartTime));
-        bookingsStartTimeSort.addAll(item.getBookings());
-
-        item.setLastBooking(bookingsEndTimeSort.stream()
+        item.setLastBooking(item.getBookings().stream()
+                .sorted(Comparator.comparing(Booking::getEndTime).reversed())
                 .filter(booking -> LocalDateTime.now().isAfter(booking.getEndTime()))
                 .findFirst()
                 .orElse(null)
         );
-        item.setNextBooking(bookingsStartTimeSort.stream()
+        item.setNextBooking(item.getBookings().stream()
+                .sorted(Comparator.comparing(Booking::getStartTime))
                 .filter(booking -> LocalDateTime.now().isBefore(booking.getStartTime()))
                 .findFirst()
                 .orElse(null)

@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 @Builder
 public class ShortBookingDto {
 
-    Long id;
+    private Long id;
 
-    Long bookerId;
+    private Long bookerId;
 
     @JsonProperty("start")
-    LocalDateTime startTime;
+    private LocalDateTime startTime;
 
     @JsonProperty("end")
-    LocalDateTime endTime;
+    private LocalDateTime endTime;
 }

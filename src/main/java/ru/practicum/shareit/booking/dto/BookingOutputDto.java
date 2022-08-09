@@ -12,17 +12,17 @@ import java.time.LocalDateTime;
 @Builder
 public class BookingOutputDto {
 
-    Long id;
+    private Long id;
 
     @JsonProperty("start")
-    LocalDateTime startTime;
+    private LocalDateTime startTime;
 
     @JsonProperty("end")
-    LocalDateTime endTime;
+    private LocalDateTime endTime;
 
-    ItemDto item;
+    private ItemDto item;
 
-    UserDto booker;
+    private UserDto booker;
 
-    BookingStatus status;
+    private BookingStatus status;
 }

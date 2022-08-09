@@ -23,9 +23,9 @@ public class ItemDto {
     @NotNull
     private Boolean available;
 
-    ShortBookingDto lastBooking;
+    private ShortBookingDto lastBooking;
 
-    ShortBookingDto nextBooking;
+    private ShortBookingDto nextBooking;
 
-    Set<CommentDto> comments;
+    private Set<CommentDto> comments;
 }

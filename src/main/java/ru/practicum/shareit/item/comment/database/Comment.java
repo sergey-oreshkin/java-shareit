@@ -21,20 +21,20 @@ public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    String text;
+    private String text;
 
     @ManyToOne
     @JoinColumn(name = "item_id")
-    Item item;
+    private Item item;
 
     @ManyToOne
     @JoinColumn(name = "author_id")
-    User author;
+    private User author;
 
     @CreationTimestamp
-    LocalDateTime created;
+    private LocalDateTime created;
 
     @Override
     public boolean equals(Object o) {
