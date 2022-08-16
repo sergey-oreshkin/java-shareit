@@ -9,10 +9,7 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Set;
 
-@Mapper(
-        componentModel = "spring",
-        uses = {ItemFactory.class, UserService.class}
-)
+@Mapper(componentModel = "spring", uses = {ItemFactory.class, UserService.class})
 public interface CommentMapper {
 
     @Mapping(source = "author.name", target = "authorName")
