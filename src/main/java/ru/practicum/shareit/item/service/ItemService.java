@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import java.util.List;
 
 public interface ItemService {
+
     List<Item> getAllByUserId(Long userId);
 
     Item getById(Long id, Long userId);

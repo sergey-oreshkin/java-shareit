@@ -41,7 +41,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequest> getAll(Long from, Long size, Long userId) {
         if (from == null && size == null) {
             from = 0L;
-            size = Long.MAX_VALUE;
+            size = 500L;
         }
         if (saveUnboxing(size) < 1 || saveUnboxing(from) < 0) {
             throw new ValidationException("from must be positive and size must be more then 0");
@@ -50,7 +50,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     private void validateUserId(long id) {
-        userService.get(id);
+        userService.getById(id);
     }
 
     private long saveUnboxing(Long value) {

@@ -39,7 +39,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getAllByUserId(Long userId) {
-        User user = userService.get(userId);
+        User user = userService.getById(userId);
         return itemRepository.findAllByOwner(user).stream()
                 .map(this::addLastAndNextBookings)
                 .sorted(Comparator.comparing(Item::getId))
@@ -58,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item create(Item item, Long userId) {
-        User user = userService.get(userId);
+        User user = userService.getById(userId);
         item.setOwner(user);
         return itemRepository.save(item);
     }

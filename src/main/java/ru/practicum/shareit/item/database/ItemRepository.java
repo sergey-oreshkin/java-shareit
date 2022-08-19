@@ -7,6 +7,7 @@ import ru.practicum.shareit.user.database.User;
 import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long>, QueryByExampleExecutor<Item> {
+
     List<Item> findAllByOwner(User user);
 
     List<Item> findAllByOwner_Id(Long id);
