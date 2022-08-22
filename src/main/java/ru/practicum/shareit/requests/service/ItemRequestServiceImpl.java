@@ -1,6 +1,8 @@
 package ru.practicum.shareit.requests.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -38,22 +40,81 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequest> getAll(Long from, Long size, Long userId) {
+    public List<ItemRequest> getAll(Integer from, Integer size, Long userId) {
+        validateUserId(userId);
         if (from == null && size == null) {
-            from = 0L;
-            size = 500L;
+            from = 0;
+            size = 500;
         }
         if (saveUnboxing(size) < 1 || saveUnboxing(from) < 0) {
             throw new ValidationException("from must be positive and size must be more then 0");
         }
-        return requestRepository.findAll(saveUnboxing(from), saveUnboxing(size), userId);
+        LimitOffsetPage pageable = new LimitOffsetPage(saveUnboxing(from), saveUnboxing(size), Sort.by(Sort.Direction.DESC, "created"));
+        return requestRepository.findAllByRequesterIdIsNot(userId, pageable).getContent();
     }
 
     private void validateUserId(long id) {
         userService.getById(id);
     }
 
-    private long saveUnboxing(Long value) {
-        return Optional.ofNullable(value).orElse(0L);
+    private int saveUnboxing(Integer value) {
+        return Optional.ofNullable(value).orElse(0);
+    }
+
+    static class LimitOffsetPage implements Pageable {
+        private final int offset;
+        private final int limit;
+        private Sort sort;
+
+        public LimitOffsetPage(int offset, int limit, Sort sort) {
+            this.offset = offset;
+            this.limit = limit;
+            this.sort = sort;
+        }
+
+        @Override
+        public int getPageNumber() {
+            return 0;
+        }
+
+        @Override
+        public int getPageSize() {
+            return limit;
+        }
+
+        @Override
+        public long getOffset() {
+            return offset;
+        }
+
+        @Override
+        public Sort getSort() {
+            return sort;
+        }
+
+        @Override
+        public Pageable next() {
+            return null;
+        }
+
+        @Override
+        public Pageable previousOrFirst() {
+            return null;
+        }
+
+        @Override
+        public Pageable first() {
+            return null;
+        }
+
+        @Override
+        public Pageable withPage(int pageNumber) {
+            return null;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return false;
+        }
     }
 }

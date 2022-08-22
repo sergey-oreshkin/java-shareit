@@ -2,7 +2,7 @@ package ru.practicum.shareit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.database.Booking;
 import ru.practicum.shareit.booking.dto.BookingStatus;
@@ -34,11 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @IntegrationTest
-@ActiveProfiles("itemtest")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemControllerTest {
-
-    public static final long USER_ID = 1;
 
     public static final String BASE_URL = "/items";
 
@@ -55,7 +51,6 @@ public class ItemControllerTest {
     final ObjectMapper mapper;
 
     final User user = User.builder()
-            .id(USER_ID)
             .name("test user")
             .email("testUser@mail.ru")
             .build();
@@ -68,26 +63,31 @@ public class ItemControllerTest {
             .bookings(new HashSet<>())
             .build();
 
-    @AfterEach
+
+    @BeforeEach
     void clearDb() {
         jdbcTemplate.update("delete from bookings");
         jdbcTemplate.update("delete from comments");
         jdbcTemplate.update("delete from items");
-
+        jdbcTemplate.update("delete from requests");
+        jdbcTemplate.update("delete from users");
     }
 
     @Test
     void getAllByUserId_shouldReturnEmptyListWhenThereIsNoItem() throws Exception {
-        mockMvc.perform(get(BASE_URL + "/").header("X-Sharer-User-Id", USER_ID))
+        var userId = jdbcUtil.insertUser(user);
+        mockMvc.perform(get(BASE_URL + "/").header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(0)));
     }
 
     @Test
     void getAllByUserId_shouldReturnListOfOneItem() throws Exception {
+        var userId = jdbcUtil.insertUser(user);
+        user.setId(userId);
         jdbcUtil.insertItem(item);
 
-        mockMvc.perform(get(BASE_URL + "/").header("X-Sharer-User-Id", USER_ID))
+        mockMvc.perform(get(BASE_URL + "/").header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(1)))
                 .andExpect(jsonPath("$[0].name", is(item.getName())));
@@ -95,6 +95,8 @@ public class ItemControllerTest {
 
     @Test
     void getAllByUserId_shouldAnswer404WithWrongUserId() throws Exception {
+        var userId = jdbcUtil.insertUser(user);
+        user.setId(userId);
         jdbcUtil.insertItem(item);
 
         mockMvc.perform(get(BASE_URL + "/").header("X-Sharer-User-Id", 404))
@@ -103,15 +105,19 @@ public class ItemControllerTest {
 
     @Test
     void getById_shouldAnswer404WithWrongItemId() throws Exception {
-        mockMvc.perform(get(BASE_URL + "/{id}", 404).header("X-Sharer-User-Id", USER_ID))
+        var userId = jdbcUtil.insertUser(user);
+
+        mockMvc.perform(get(BASE_URL + "/{id}", 404).header("X-Sharer-User-Id", userId))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void getById_shouldReturnItem() throws Exception {
+        var userId = jdbcUtil.insertUser(user);
+        user.setId(userId);
         var id = jdbcUtil.insertItem(item);
 
-        mockMvc.perform(get(BASE_URL + "/{id}", id).header("X-Sharer-User-Id", USER_ID))
+        mockMvc.perform(get(BASE_URL + "/{id}", id).header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(item.getName())));
     }
@@ -130,11 +136,12 @@ public class ItemControllerTest {
     @Test
     void create_shouldPutItemIntoDbAndReturn() throws Exception {
         var itemDto = ItemDto.builder().name("name").description("desc").available(true).build();
+        var id = jdbcUtil.insertUser(user);
 
         mockMvc.perform(post(BASE_URL + "/")
                         .contentType("application/json")
                         .content(mapper.writeValueAsString(itemDto))
-                        .header("X-Sharer-User-Id", USER_ID))
+                        .header("X-Sharer-User-Id", id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(itemDto.getName())));
 
@@ -150,10 +157,12 @@ public class ItemControllerTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("badParametersForCreate")
     void create_shouldErrorStatusForBadParameters(String name, ItemDto itemDto, HttpStatus status) throws Exception {
+        var id = jdbcUtil.insertUser(user);
+
         mockMvc.perform(post(BASE_URL + "/")
                         .contentType("application/json")
                         .content(mapper.writeValueAsString(itemDto))
-                        .header("X-Sharer-User-Id", USER_ID))
+                        .header("X-Sharer-User-Id", id))
                 .andExpect(status().is(status.value()));
     }
 
@@ -167,17 +176,20 @@ public class ItemControllerTest {
 
     @Test
     void update_shouldUpdateItemInDb() throws Exception {
+        var userId = jdbcUtil.insertUser(user);
+        user.setId(userId);
         var id = jdbcUtil.insertItem(item);
         var itemDto = ItemDto.builder().name("updated").available(false).build();
 
         mockMvc.perform(patch(BASE_URL + "/{id}", id)
                         .contentType("application/json")
                         .content(mapper.writeValueAsString(itemDto))
-                        .header("X-Sharer-User-Id", USER_ID))
+                        .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(itemDto.getName())));
 
         String sql = "select * from items";
+        jdbcTemplate.query(sql, jdbcUtil::mapRowToItem).forEach(System.out::println);
         var result = jdbcTemplate.query(sql, jdbcUtil::mapRowToItem).stream()
                 .findFirst()
                 .orElse(null);
@@ -196,6 +208,8 @@ public class ItemControllerTest {
 
     @Test
     void searchByKeyword_shouldReturnItemsContainedGivenString() throws Exception {
+        var userId = jdbcUtil.insertUser(user);
+        user.setId(userId);
         jdbcUtil.insertItem(item);
 
         mockMvc.perform(get(BASE_URL + SEARCH_URL).param("text", "nothing"))
@@ -209,35 +223,41 @@ public class ItemControllerTest {
 
     @Test
     void createComment_shouldAnswer400WithEmptyText() throws Exception {
+        var userId = jdbcUtil.insertUser(user);
+        user.setId(userId);
         var id = jdbcUtil.insertItem(item);
         var commentDto = CommentDto.builder().build();
 
         mockMvc.perform(post(BASE_URL + "/{itemId}" + COMMENT_URL, id)
                         .contentType("application/json")
-                        .header("X-Sharer-User-Id", USER_ID)
+                        .header("X-Sharer-User-Id", userId)
                         .content(mapper.writeValueAsString(commentDto)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void createComment_shouldAnswer400WithNoBooking() throws Exception {
+        var userId = jdbcUtil.insertUser(user);
+        user.setId(userId);
         var id = jdbcUtil.insertItem(item);
         var commentDto = CommentDto.builder().text("some comment").build();
 
         mockMvc.perform(post(BASE_URL + "/{itemId}" + COMMENT_URL, id)
                         .contentType("application/json")
-                        .header("X-Sharer-User-Id", USER_ID)
+                        .header("X-Sharer-User-Id", userId)
                         .content(mapper.writeValueAsString(commentDto)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void createComment_shouldAddCommentInDbAndReturn() throws Exception {
+        var userId = jdbcUtil.insertUser(user);
+        user.setId(userId);
         var id = jdbcUtil.insertItem(item);
         var commentDto = CommentDto.builder().text("some comment").build();
         var booking = Booking.builder()
                 .item(Item.builder().id(id).build())
-                .booker(User.builder().id(USER_ID).build())
+                .booker(User.builder().id(userId).build())
                 .startTime(LocalDateTime.now().minusSeconds(120))
                 .endTime(LocalDateTime.now().minusSeconds(60))
                 .status(BookingStatus.APPROVED)
@@ -246,7 +266,7 @@ public class ItemControllerTest {
 
         mockMvc.perform(post(BASE_URL + "/{itemId}" + COMMENT_URL, id)
                         .contentType("application/json")
-                        .header("X-Sharer-User-Id", USER_ID)
+                        .header("X-Sharer-User-Id", userId)
                         .content(mapper.writeValueAsString(commentDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text", is(commentDto.getText())));
@@ -259,6 +279,4 @@ public class ItemControllerTest {
         assertNotNull(result);
         assertEquals(commentDto.getText(), result.getText());
     }
-
-
 }

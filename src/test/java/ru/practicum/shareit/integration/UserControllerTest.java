@@ -2,7 +2,7 @@ package ru.practicum.shareit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import ru.practicum.shareit.integration.annotation.IntegrationTest;
 import ru.practicum.shareit.user.database.User;
 import ru.practicum.shareit.user.dto.PatchUserDto;
@@ -50,8 +51,12 @@ public class UserControllerTest {
             .email(BASE_EMAIL)
             .build();
 
-    @AfterEach
+    @BeforeEach
     void clearDb() {
+        jdbcTemplate.update("delete from bookings");
+        jdbcTemplate.update("delete from comments");
+        jdbcTemplate.update("delete from items");
+        jdbcTemplate.update("delete from requests");
         jdbcTemplate.update("delete from users");
     }
 
@@ -97,19 +102,23 @@ public class UserControllerTest {
                 .email(BASE_EMAIL)
                 .build();
 
-        mockMvc.perform(post(BASE_URL + "/")
+        MvcResult result = mockMvc.perform(post(BASE_URL + "/")
                         .contentType("application/json")
                         .content(mapper.writeValueAsString(userDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is(userDto.getName())));
+                .andExpect(jsonPath("$.name", is(userDto.getName())))
+                .andReturn();
+//TODO
+//       String response = result.getResponse().getContentAsString();
+//       User u = mapper.readValue(response, User.class);
 
         String sql = "select * from users";
-        var result = jdbcTemplate.query(sql, jdbcUtil::mapRowToUser).stream()
+        var resultUser = jdbcTemplate.query(sql, jdbcUtil::mapRowToUser).stream()
                 .findFirst()
                 .orElse(null);
 
-        assertNotNull(result);
-        assertEquals(BASE_NAME, result.getName());
+        assertNotNull(resultUser);
+        assertEquals(userDto.getName(), resultUser.getName());
     }
 
     @ParameterizedTest(name = "{0}")

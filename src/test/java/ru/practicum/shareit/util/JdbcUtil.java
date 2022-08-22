@@ -7,11 +7,14 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.database.Booking;
+import ru.practicum.shareit.booking.dto.BookingStatus;
 import ru.practicum.shareit.item.database.Item;
+import ru.practicum.shareit.requests.database.ItemRequest;
 import ru.practicum.shareit.user.database.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -67,5 +70,35 @@ public class JdbcUtil {
                 .addValue("booker_id", booking.getBooker().getId())
                 .addValue("status", booking.getStatus());
         return (long) simpleJdbcInsert.executeAndReturnKey(parameters);
+    }
+
+    public Booking mapRowToBooking(ResultSet rs, int rowNum) throws SQLException {
+        return Booking.builder()
+                .id(rs.getLong("id"))
+                .startTime(rs.getTimestamp("start_time").toLocalDateTime())
+                .endTime(rs.getTimestamp("end_time").toLocalDateTime())
+                .status(BookingStatus.valueOf(rs.getString("status")))
+                .item(Item.builder().id(rs.getLong("item_id")).build())
+                .booker(User.builder().id(rs.getLong("booker_id")).build())
+                .build();
+    }
+
+    public long insertRequest(ItemRequest itemRequest) {
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+        simpleJdbcInsert.withTableName("requests").usingGeneratedKeyColumns("id");
+        SqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("description", itemRequest.getDescription())
+                .addValue("requester_id", itemRequest.getRequester().getId())
+                .addValue("created", LocalDateTime.now());
+        return (long) simpleJdbcInsert.executeAndReturnKey(parameters);
+    }
+
+    public ItemRequest mapRowToRequest(ResultSet rs, int rowNum) throws SQLException {
+        return ItemRequest.builder()
+                .id(rs.getLong("id"))
+                .description(rs.getString("description"))
+                .requester(User.builder().id(rs.getLong("requester_id")).build())
+                .created(rs.getTimestamp("created").toLocalDateTime())
+                .build();
     }
 }

@@ -30,8 +30,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ItemServiceTest {
 
+    private static final long WRONG_USER_ID = 404L;
     private static final long USER_ID = 1;
-    public static final long ITEM_ID = 1;
+    private static final long ITEM_ID = 1;
 
     final User user = User.builder()
             .id(USER_ID)
@@ -126,7 +127,7 @@ class ItemServiceTest {
 
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 
-        assertThrows(NotFoundException.class, () -> itemService.update(itemDto, ITEM_ID, 404L));
+        assertThrows(NotFoundException.class, () -> itemService.update(itemDto, ITEM_ID, WRONG_USER_ID));
         verify(itemRepository, times(1)).findById(anyLong());
     }
 
