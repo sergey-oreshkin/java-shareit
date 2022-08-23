@@ -43,22 +43,25 @@ class BookingServiceTest {
     private static final long WRONG_USER_ID = 404L;
     private static final long USER_ID = 1;
     private static final long ITEM_ID = 1;
-    private static List<Item> items;
+    private static final List<Item> items;
 
     static {
         LocalDateTime now = LocalDateTime.now();
         items = List.of(
                 Item.builder().bookings(Set.of(Booking.builder()  //past
+                        .id(1L)
                         .status(BookingStatus.APPROVED)
                         .startTime(now.minusDays(1))
                         .endTime(now.minusDays(1))
                         .build())).build(),
                 Item.builder().bookings(Set.of(Booking.builder()  //current
+                        .id(2L)
                         .status(BookingStatus.WAITING)
                         .startTime(now.minusDays(1))
                         .endTime(now.plusDays(1))
                         .build())).build(),
                 Item.builder().bookings(Set.of(Booking.builder()  //future
+                        .id(3L)
                         .status(BookingStatus.REJECTED)
                         .startTime(now.plusDays(1))
                         .endTime(now.plusDays(1))
@@ -202,9 +205,9 @@ class BookingServiceTest {
 
     @Test
     void getAllByBooker_shouldThrowNotFoundExceptionWhenNoBookingsFound() {
-        when(bookingRepository.findAllByBooker_IdOrderByStartTimeDesc(anyLong())).thenReturn(Collections.emptyList());
+        when(bookingRepository.findAllByBookerId(anyLong(), any())).thenReturn(Collections.emptyList());
 
-        assertThrows(NotFoundException.class, () -> bookingService.getAllByBooker(USER_ID, State.ALL));
+        assertThrows(NotFoundException.class, () -> bookingService.getAllByBooker(USER_ID, State.ALL, null, null));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -213,9 +216,9 @@ class BookingServiceTest {
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = items.stream().flatMap(i -> i.getBookings().stream()).collect(Collectors.toList());
 
-        when(bookingRepository.findAllByBooker_IdOrderByStartTimeDesc(anyLong())).thenReturn(bookings);
+        when(bookingRepository.findAllByBookerId(anyLong(), any())).thenReturn(bookings);
 
-        var result = bookingService.getAllByBooker(USER_ID, state);
+        var result = bookingService.getAllByBooker(USER_ID, state, null, null);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
@@ -241,26 +244,27 @@ class BookingServiceTest {
 
     @Test
     void getAllByItemsOwner_shouldThrowNotFoundExceptionWhenNoItemsFound() {
-        when(itemRepository.findAllByOwner_Id(USER_ID)).thenReturn(Collections.emptyList());
+        when(itemRepository.findAllByOwnerId(USER_ID)).thenReturn(Collections.emptyList());
 
-        assertThrows(NotFoundException.class, () -> bookingService.getAllByItemsOwner(USER_ID, State.ALL));
+        assertThrows(NotFoundException.class, () -> bookingService.getAllByItemsOwner(USER_ID, State.ALL, null, null));
     }
 
     @Test
     void getAllByItemsOwner_shouldThrowNotFoundExceptionWhenNoBookingsFound() {
-        when(itemRepository.findAllByOwner_Id(USER_ID)).thenReturn(List.of(Item.builder().bookings(Collections.emptySet()).build()));
+        when(itemRepository.findAllByOwnerId(USER_ID)).thenReturn(List.of(Item.builder().bookings(Collections.emptySet()).build()));
 
-        assertThrows(NotFoundException.class, () -> bookingService.getAllByItemsOwner(USER_ID, State.ALL));
+        assertThrows(NotFoundException.class, () -> bookingService.getAllByItemsOwner(USER_ID, State.ALL, null, null));
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("states")
     void getAllByItemsOwner_shouldReturnBookingsByState(String name, State state) {
         LocalDateTime now = LocalDateTime.now();
+        List<Booking> bookings = items.stream().flatMap(i -> i.getBookings().stream()).collect(Collectors.toList());
+        when(itemRepository.findAllByOwnerId(anyLong())).thenReturn(items);
+        when(bookingRepository.findAllByItemIdIn(anyCollection(), any())).thenReturn(bookings);
 
-        when(itemRepository.findAllByOwner_Id(anyLong())).thenReturn(items);
-
-        var result = bookingService.getAllByItemsOwner(USER_ID, state);
+        var result = bookingService.getAllByItemsOwner(USER_ID, state, null, null);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());

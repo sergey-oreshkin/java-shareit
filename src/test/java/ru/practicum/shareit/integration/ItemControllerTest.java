@@ -138,20 +138,23 @@ public class ItemControllerTest {
         var itemDto = ItemDto.builder().name("name").description("desc").available(true).build();
         var id = jdbcUtil.insertUser(user);
 
-        mockMvc.perform(post(BASE_URL + "/")
+        var result = mockMvc.perform(post(BASE_URL + "/")
                         .contentType("application/json")
                         .content(mapper.writeValueAsString(itemDto))
                         .header("X-Sharer-User-Id", id))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is(itemDto.getName())));
+                .andExpect(jsonPath("$.name", is(itemDto.getName())))
+                .andReturn();
+
+        var itemFromJson = mapper.readValue(result.getResponse().getContentAsString(), Item.class);
 
         String sql = "select * from items";
-        var result = jdbcTemplate.query(sql, jdbcUtil::mapRowToItem).stream()
+        var itemFromDb = jdbcTemplate.query(sql, jdbcUtil::mapRowToItem).stream()
                 .findFirst()
                 .orElse(null);
 
-        assertNotNull(result);
-        assertEquals(itemDto.getName(), result.getName());
+        assertNotNull(itemFromDb);
+        assertEquals(itemFromDb, itemFromJson);
     }
 
     @ParameterizedTest(name = "{0}")

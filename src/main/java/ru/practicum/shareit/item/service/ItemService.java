@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ItemService {
 
-    List<Item> getAllByUserId(Long userId);
+    List<Item> getAllByUserId(Long userId, Integer from, Integer size);
 
     Item getById(Long id, Long userId);
 
@@ -16,7 +16,7 @@ public interface ItemService {
 
     Item update(ItemDto itemDto, Long itemId, Long userId);
 
-    List<Item> searchByKeyword(String keyword);
+    List<Item> searchByKeyword(String keyword, Integer from, Integer size);
 
     Comment createComment(Comment comment);
 }

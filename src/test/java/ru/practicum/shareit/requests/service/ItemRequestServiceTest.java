@@ -100,7 +100,7 @@ class ItemRequestServiceTest {
     @Test
     void getAll_shouldThrowValidationExceptionWhenSizeLess1AndNotInvokeRepository() {
 
-        assertThrows(ValidationException.class, () -> itemRequestService.getAll(1, 0, USER_ID));
+        assertThrows(ValidationException.class, () -> itemRequestService.getAll(USER_ID, 1, 0));
 
         verifyNoMoreInteractions(requestRepository);
     }

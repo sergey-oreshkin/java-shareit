@@ -108,17 +108,16 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(userDto.getName())))
                 .andReturn();
-//TODO
-//       String response = result.getResponse().getContentAsString();
-//       User u = mapper.readValue(response, User.class);
+
+        var userFromJson = mapper.readValue(result.getResponse().getContentAsString(), User.class);
 
         String sql = "select * from users";
-        var resultUser = jdbcTemplate.query(sql, jdbcUtil::mapRowToUser).stream()
+        var userFromDb = jdbcTemplate.query(sql, jdbcUtil::mapRowToUser).stream()
                 .findFirst()
                 .orElse(null);
 
-        assertNotNull(resultUser);
-        assertEquals(userDto.getName(), resultUser.getName());
+        assertNotNull(userFromDb);
+        assertEquals(userFromJson, userFromDb);
     }
 
     @ParameterizedTest(name = "{0}")

@@ -6,7 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.database.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -72,11 +74,11 @@ class ItemServiceTest {
     @Test
     void getAllByUserId_shouldInvokeRepositoryAndReturnOneItem() {
         when(userService.getById(USER_ID)).thenReturn(user);
-        when(itemRepository.findAllByOwner(any())).thenReturn(List.of(item));
+        when(itemRepository.findAllByOwner(any(), any())).thenReturn(List.of(item));
 
-        var result = itemService.getAllByUserId(USER_ID);
+        var result = itemService.getAllByUserId(USER_ID, null, null);
 
-        verify(itemRepository, times(1)).findAllByOwner(user);
+        verify(itemRepository, times(1)).findAllByOwner(eq(user), any());
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(item.getOwner(), result.get(0).getOwner());
@@ -149,11 +151,12 @@ class ItemServiceTest {
 
     @Test
     void searchByKeyword_shouldInvokeRepositoryAndReturnTheSame() {
-        when(itemRepository.findAll((Example<Item>) any())).thenReturn(List.of(item));
+        Page<Item> page = new PageImpl<>(List.of(item));
+        when(itemRepository.findAll(any(), (Pageable) any())).thenReturn(page);
 
-        var result = itemService.searchByKeyword(anyString());
+        var result = itemService.searchByKeyword("test", null, null);
 
-        verify(itemRepository, times(1)).findAll((Example<Item>) any());
+        verify(itemRepository, times(1)).findAll(any(), (Pageable) any());
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -165,7 +168,7 @@ class ItemServiceTest {
         var comment = Comment.builder().item(item).author(user).build();
         var booking = Booking.builder().item(item).booker(user).endTime(LocalDateTime.now().minusSeconds(60)).build();
 
-        when(bookingService.getAllByBooker(anyLong(), any())).thenReturn(List.of(booking));
+        when(bookingService.getAllByBooker(anyLong(), any(), any(), any())).thenReturn(List.of(booking));
         when(commentRepository.save(any())).thenAnswer(returnsFirstArg());
 
         var result = itemService.createComment(comment);

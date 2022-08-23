@@ -1,19 +1,20 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.database.Booking;
 import ru.practicum.shareit.booking.database.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingStatus;
 import ru.practicum.shareit.booking.dto.State;
+import ru.practicum.shareit.common.OffsetLimitPageable;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.database.Item;
 import ru.practicum.shareit.item.database.ItemRepository;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -64,8 +65,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllByBooker(Long userId, State state) {
-        List<Booking> bookings = bookingRepository.findAllByBooker_IdOrderByStartTimeDesc(userId);
+    public List<Booking> getAllByBooker(Long userId, State state, Integer from, Integer size) {
+        Pageable pageable = OffsetLimitPageable.of(from, size, Sort.by(Sort.Direction.DESC, "startTime"));
+        List<Booking> bookings = bookingRepository.findAllByBookerId(userId, pageable);
         if (bookings.isEmpty()) {
             throw new NotFoundException("It makes no sense");
         }
@@ -73,14 +75,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllByItemsOwner(Long userId, State state) {
-        List<Item> items = itemRepository.findAllByOwner_Id(userId);
-        List<Booking> bookings = items.stream()
-                .map(Item::getBookings)
-                .flatMap(Collection::stream)
-                .sorted(Comparator.comparing(Booking::getStartTime).reversed())
-                .collect(Collectors.toList());
-        if (items.isEmpty() || bookings.isEmpty()) {
+    public List<Booking> getAllByItemsOwner(Long userId, State state, Integer from, Integer size) {
+        Pageable pageable = OffsetLimitPageable.of(from, size, Sort.by(Sort.Direction.DESC, "startTime"));
+        List<Long> itemIds = itemRepository.findAllByOwnerId(userId).stream().map(Item::getId).collect(Collectors.toList());
+        List<Booking> bookings = bookingRepository.findAllByItemIdIn(itemIds, pageable);
+        if (itemIds.isEmpty() || bookings.isEmpty()) {
             throw new NotFoundException("It makes no sense");
         }
         return getBookingsByState(state, bookings);

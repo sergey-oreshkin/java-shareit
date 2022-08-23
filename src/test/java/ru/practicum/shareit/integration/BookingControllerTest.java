@@ -127,7 +127,7 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.status", is(BookingStatus.WAITING.toString())))
                 .andReturn();
 
-        var bookingFromResponse = mapper.readValue(result.getResponse().getContentAsString(), Booking.class);
+        var bookingFromJson = mapper.readValue(result.getResponse().getContentAsString(), Booking.class);
 
         var sql = "select * from bookings";
         var bookingFromDb = jdbcTemplate.query(sql, jdbcUtil::mapRowToBooking).stream()
@@ -135,7 +135,7 @@ public class BookingControllerTest {
                 .orElse(null);
 
         assertNotNull(bookingFromDb);
-        assertEquals(bookingFromResponse, bookingFromDb);
+        assertEquals(bookingFromJson, bookingFromDb);
     }
 
     @Test
