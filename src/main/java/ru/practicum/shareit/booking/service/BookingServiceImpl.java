@@ -11,8 +11,8 @@ import ru.practicum.shareit.booking.dto.State;
 import ru.practicum.shareit.common.OffsetLimitPageable;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.database.Item;
-import ru.practicum.shareit.item.database.ItemRepository;
+import ru.practicum.shareit.user.database.User;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +25,7 @@ public class BookingServiceImpl implements BookingService {
 
     public final BookingRepository bookingRepository;
 
-    public final ItemRepository itemRepository;
+    public final UserService userService;
 
     @Override
     public Booking create(Long userId, Booking booking) {
@@ -77,9 +77,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getAllByItemsOwner(Long userId, State state, Integer from, Integer size) {
         Pageable pageable = OffsetLimitPageable.of(from, size, Sort.by(Sort.Direction.DESC, "startTime"));
-        List<Long> itemIds = itemRepository.findAllByOwnerId(userId).stream().map(Item::getId).collect(Collectors.toList());
-        List<Booking> bookings = bookingRepository.findAllByItemIdIn(itemIds, pageable);
-        if (itemIds.isEmpty() || bookings.isEmpty()) {
+        final User user = userService.getById(userId);
+        List<Booking> bookings = bookingRepository.findAllByItemOwner(user, pageable);
+        if (bookings.isEmpty()) {
             throw new NotFoundException("It makes no sense");
         }
         return getBookingsByState(state, bookings);

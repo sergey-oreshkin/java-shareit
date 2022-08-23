@@ -16,8 +16,8 @@ import ru.practicum.shareit.booking.dto.State;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.database.Item;
-import ru.practicum.shareit.item.database.ItemRepository;
 import ru.practicum.shareit.user.database.User;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -35,7 +35,7 @@ class BookingServiceTest {
     BookingRepository bookingRepository;
 
     @Mock
-    ItemRepository itemRepository;
+    UserService userService;
 
     @InjectMocks
     BookingServiceImpl bookingService;
@@ -243,15 +243,14 @@ class BookingServiceTest {
 
 
     @Test
-    void getAllByItemsOwner_shouldThrowNotFoundExceptionWhenNoItemsFound() {
-        when(itemRepository.findAllByOwnerId(USER_ID)).thenReturn(Collections.emptyList());
+    void getAllByItemsOwner_shouldThrowNotFoundExceptionWhenUserNotFound() {
 
         assertThrows(NotFoundException.class, () -> bookingService.getAllByItemsOwner(USER_ID, State.ALL, null, null));
     }
 
     @Test
     void getAllByItemsOwner_shouldThrowNotFoundExceptionWhenNoBookingsFound() {
-        when(itemRepository.findAllByOwnerId(USER_ID)).thenReturn(List.of(Item.builder().bookings(Collections.emptySet()).build()));
+        when(bookingRepository.findAllByItemOwner(any(), any())).thenReturn(Collections.emptyList());
 
         assertThrows(NotFoundException.class, () -> bookingService.getAllByItemsOwner(USER_ID, State.ALL, null, null));
     }
@@ -261,8 +260,7 @@ class BookingServiceTest {
     void getAllByItemsOwner_shouldReturnBookingsByState(String name, State state) {
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = items.stream().flatMap(i -> i.getBookings().stream()).collect(Collectors.toList());
-        when(itemRepository.findAllByOwnerId(anyLong())).thenReturn(items);
-        when(bookingRepository.findAllByItemIdIn(anyCollection(), any())).thenReturn(bookings);
+        when(bookingRepository.findAllByItemOwner(any(), any())).thenReturn(bookings);
 
         var result = bookingService.getAllByItemsOwner(USER_ID, state, null, null);
 
