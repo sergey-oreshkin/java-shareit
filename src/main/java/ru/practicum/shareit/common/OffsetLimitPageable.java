@@ -53,7 +53,6 @@ public class OffsetLimitPageable implements Pageable {
     }
 
     @Override
-
     public Sort getSort() {
         return sort;
     }

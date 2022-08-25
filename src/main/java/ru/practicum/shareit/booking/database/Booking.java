@@ -17,8 +17,7 @@ import java.util.Objects;
 @Builder
 @Entity
 @Table(name = "bookings")
-public class
-Booking {
+public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
