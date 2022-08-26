@@ -26,6 +26,4 @@ public class BookingInputDto {
     @Future
     @JsonProperty("end")
     private LocalDateTime endTime;
-
-    private BookingStatus status;
 }

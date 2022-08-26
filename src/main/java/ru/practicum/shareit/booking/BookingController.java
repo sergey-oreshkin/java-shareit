@@ -50,14 +50,18 @@ public class BookingController {
     @GetMapping
     public List<BookingOutputDto> getAllByBooker(
             @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
-            @RequestParam(defaultValue = "ALL") State state) {
-        return bookingMapper.toDto(bookingService.getAllByBooker(userId, state));
+            @RequestParam(defaultValue = "ALL") State state,
+            @RequestParam(name = "from", required = false) Integer from,
+            @RequestParam(name = "size", required = false) Integer size) {
+        return bookingMapper.toDto(bookingService.getAllByBooker(userId, state, from, size));
     }
 
     @GetMapping("owner")
     public List<BookingOutputDto> getAllByItemsOwner(
             @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
-            @RequestParam(defaultValue = "ALL") State state) {
-        return bookingMapper.toDto(bookingService.getAllByItemsOwner(userId, state));
+            @RequestParam(defaultValue = "ALL") State state,
+            @RequestParam(name = "from", required = false) Integer from,
+            @RequestParam(name = "size", required = false) Integer size) {
+        return bookingMapper.toDto(bookingService.getAllByItemsOwner(userId, state, from, size));
     }
 }

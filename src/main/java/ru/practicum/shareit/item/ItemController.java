@@ -28,8 +28,10 @@ public class ItemController {
     private final CommentMapper commentMapper;
 
     @GetMapping
-    public List<ItemDto> getAllByUserId(@RequestHeader("X-Sharer-User-Id") @NotNull Long userId) {
-        return itemMapper.toDto(itemService.getAllByUserId(userId));
+    public List<ItemDto> getAllByUserId(@RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
+                                        @RequestParam(name = "from", required = false) Integer from,
+                                        @RequestParam(name = "size", required = false) Integer size) {
+        return itemMapper.toDto(itemService.getAllByUserId(userId, from, size));
     }
 
     @GetMapping("{id}")
@@ -53,9 +55,11 @@ public class ItemController {
     }
 
     @GetMapping("search")
-    public List<ItemDto> searchByKeyword(@RequestParam(name = "text", defaultValue = "") String keyword) {
+    public List<ItemDto> searchByKeyword(@RequestParam(name = "text", defaultValue = "") String keyword,
+                                         @RequestParam(name = "from", required = false) Integer from,
+                                         @RequestParam(name = "size", required = false) Integer size) {
         if (keyword.isEmpty()) return Collections.emptyList();
-        return itemMapper.toDto(itemService.searchByKeyword(keyword));
+        return itemMapper.toDto(itemService.searchByKeyword(keyword, from, size));
     }
 
     @PostMapping("{itemId}/comment")
