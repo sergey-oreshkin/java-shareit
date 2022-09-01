@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:14.5-alpine
+    container_name: postgres
+    volumes:
+      - /var/lib/postgresql/data
+    ports:
+      - "6543:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
+
+  server:
+    build: ./server
+    ports:
+      - "8000:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server
+    environment:
+      - SHAREIT-SERVER_URL=http://server:8080

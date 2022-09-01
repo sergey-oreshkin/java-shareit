@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>shareit-server</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1</version>
 
     <name>ShareIt Server</name>
     <properties>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <optional>false</optional>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -84,7 +84,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>coverage</id>
