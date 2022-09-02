@@ -3,8 +3,6 @@ services:
   db:
     image: postgres:14.5-alpine
     container_name: postgres
-    volumes:
-      - /var/lib/postgresql/data
     ports:
       - "6543:5432"
     environment:
@@ -21,6 +19,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_SQL_INIT_MODE=always
+      - SPRING_JPA_HIBERNATE_DDL-AUTO=none
 
   gateway:
     build: ./gateway
