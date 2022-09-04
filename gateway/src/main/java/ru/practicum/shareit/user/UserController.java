@@ -15,38 +15,38 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @RestController
-@RequestMapping(path = "users")
+@RequestMapping(path = "users", produces = "application/json")
 @RequiredArgsConstructor
 @Validated
 public class UserController {
-    public static final String BASE_URL = "http://localhost:8080";
 
-    private final UserClient userClient;
+    private final UserClient client;
 
     private final ObjectMapper objectMapper;
 
     @GetMapping
     public Mono<ResponseEntity<String>> getAll() {
-        return userClient.get();
+        return client.get();
     }
 
     @GetMapping("{id}")
     public Mono<ResponseEntity<String>> get(@PathVariable @NotNull Long id) {
-        return userClient.get(String.valueOf(id));
+        return client.get(String.valueOf(id));
     }
 
     @PostMapping
     public Mono<ResponseEntity<String>> create(@Valid @RequestBody UserDto userDto) throws JsonProcessingException {
-        return userClient.post(objectMapper.writeValueAsString(userDto));
+        return client.post(objectMapper.writeValueAsString(userDto));
     }
 
     @PatchMapping({"{id}"})
-    public Mono<ResponseEntity<String>> update(@Valid @RequestBody PatchUserDto userDto, @PathVariable @NotNull Long id) throws JsonProcessingException {
-        return userClient.patch(String.valueOf(id), objectMapper.writeValueAsString(userDto));
+    public Mono<ResponseEntity<String>> update(@Valid @RequestBody PatchUserDto userDto,
+                                               @PathVariable @NotNull Long id) throws JsonProcessingException {
+        return client.patch(String.valueOf(id), objectMapper.writeValueAsString(userDto));
     }
 
     @DeleteMapping({"{id}"})
-    public Mono<ResponseEntity<String>> delete(@PathVariable Long id) {
-        return userClient.delete(String.valueOf(id));
+    public Mono<ResponseEntity<String>> delete(@PathVariable @NotNull Long id) {
+        return client.delete(String.valueOf(id));
     }
 }

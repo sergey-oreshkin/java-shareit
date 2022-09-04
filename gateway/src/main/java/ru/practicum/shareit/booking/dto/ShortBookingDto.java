@@ -8,11 +8,11 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class BookingInputDto {
+public class ShortBookingDto {
 
     private Long id;
 
-    private Long itemId;
+    private Long bookerId;
 
     @JsonProperty("start")
     private LocalDateTime startTime;

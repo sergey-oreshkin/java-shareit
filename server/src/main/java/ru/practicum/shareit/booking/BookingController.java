@@ -10,8 +10,6 @@ import ru.practicum.shareit.booking.dto.State;
 import ru.practicum.shareit.booking.service.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -26,8 +24,8 @@ public class BookingController {
 
     @PostMapping
     public BookingOutputDto create(
-            @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
-            @Valid @RequestBody BookingInputDto bookingDto) {
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestBody BookingInputDto bookingDto) {
         Booking booking = bookingMapper.fromDto(bookingDto, userId);
         return bookingMapper.toDto(bookingService.create(userId, booking));
     }
@@ -35,21 +33,21 @@ public class BookingController {
     @GetMapping("{bookingId}")
     public BookingOutputDto get(
             @PathVariable Long bookingId,
-            @RequestHeader("X-Sharer-User-Id") @NotNull Long userId) {
+            @RequestHeader("X-Sharer-User-Id") Long userId) {
         return bookingMapper.toDto(bookingService.getById(userId, bookingId));
     }
 
     @PatchMapping("{bookingId}")
     public BookingOutputDto approve(
-            @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
-            @PathVariable @NotNull Long bookingId,
-            @RequestParam @NotNull Boolean approved) {
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PathVariable Long bookingId,
+            @RequestParam Boolean approved) {
         return bookingMapper.toDto(bookingService.approve(userId, bookingId, approved));
     }
 
     @GetMapping
     public List<BookingOutputDto> getAllByBooker(
-            @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
+            @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(defaultValue = "ALL") State state,
             @RequestParam(name = "from", required = false) Integer from,
             @RequestParam(name = "size", required = false) Integer size) {
@@ -58,7 +56,7 @@ public class BookingController {
 
     @GetMapping("owner")
     public List<BookingOutputDto> getAllByItemsOwner(
-            @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
+            @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(defaultValue = "ALL") State state,
             @RequestParam(name = "from", required = false) Integer from,
             @RequestParam(name = "size", required = false) Integer size) {

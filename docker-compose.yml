@@ -3,16 +3,11 @@ services:
   db:
     image: postgres:14.5-alpine
     container_name: postgres
-    ports:
-      - "6543:5432"
     environment:
       - POSTGRES_PASSWORD=postgres
 
-
   server:
     build: ./server
-    ports:
-      - "8000:8080"
     depends_on:
       - db
     environment:

@@ -31,7 +31,7 @@ public class UserClient extends BaseClient {
         return patch(String.format("/%s", pathVariable), null, null, body);
     }
 
-    public Mono<ResponseEntity<String>> delete (String pathVariable) {
+    public Mono<ResponseEntity<String>> delete(String pathVariable) {
         return delete(String.format("/%s", pathVariable), null, null);
     }
 }
