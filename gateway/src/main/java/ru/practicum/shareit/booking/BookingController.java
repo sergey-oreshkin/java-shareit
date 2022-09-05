@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import ru.practicum.shareit.booking.client.BookingClient;
@@ -19,6 +20,7 @@ import static ru.practicum.shareit.util.ParamValidator.validateAndGetState;
 @RestController
 @RequestMapping(path = "/bookings", produces = "application/json")
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
 
     private final BookingClient client;

@@ -60,7 +60,9 @@ public class ItemController {
     public Mono<ResponseEntity<String>> searchByKeyword(@RequestParam(name = "text", defaultValue = "") String keyword,
                                                         @RequestParam(name = "from", required = false) Integer from,
                                                         @RequestParam(name = "size", required = false) Integer size) {
-        if (keyword.isEmpty()) return Mono.just(ResponseEntity.ok("[]"));
+        if (keyword.isEmpty()) {
+            return Mono.just(ResponseEntity.ok().body("[]"));
+        }
         Map<String, Object> params = getValidatedPaginationParameters(from, size);
         params.put("text", keyword);
         return client.get("/search", null, params);

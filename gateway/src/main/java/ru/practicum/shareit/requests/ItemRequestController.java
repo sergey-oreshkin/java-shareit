@@ -4,19 +4,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import ru.practicum.shareit.requests.client.ItemRequestClient;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 import static ru.practicum.shareit.util.ParamValidator.getValidatedPaginationParameters;
 
 @RestController
 @RequestMapping(path = "/requests", produces = "application/json")
 @RequiredArgsConstructor
+@Validated
 public class ItemRequestController {
 
     private final ItemRequestClient client;
@@ -41,8 +45,8 @@ public class ItemRequestController {
 
     @GetMapping("all")
     public Mono<ResponseEntity<String>> getAll(@RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
-                                               @RequestParam(name = "from", required = false) Integer from,
-                                               @RequestParam(name = "size", required = false) Integer size) {
+                                               @RequestParam(name = "from", required = false) @Positive Integer from,
+                                               @RequestParam(name = "size", required = false) @Min(1) Integer size) {
         return client.get("/all", userId, getValidatedPaginationParameters(from, size));
     }
 }
