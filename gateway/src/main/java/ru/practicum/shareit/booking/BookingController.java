@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.client.BookingClient;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 
@@ -53,8 +54,8 @@ public class BookingController {
     public Mono<ResponseEntity<String>> getAllByBooker(
             @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(name = "from", required = false) Integer from,
-            @RequestParam(name = "size", required = false) Integer size) {
+            @RequestParam(name = "from", required = false) @Min(0) Integer from,
+            @RequestParam(name = "size", required = false) @Min(0) Integer size) {
         Map<String, Object> params = getValidatedPaginationParameters(from, size);
         params.put("state", validateAndGetState(state).name());
         return client.get("/", userId, params);

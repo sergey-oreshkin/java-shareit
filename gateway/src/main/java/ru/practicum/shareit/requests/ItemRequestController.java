@@ -13,7 +13,6 @@ import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 
 import static ru.practicum.shareit.util.ParamValidator.getValidatedPaginationParameters;
 
@@ -45,7 +44,7 @@ public class ItemRequestController {
 
     @GetMapping("all")
     public Mono<ResponseEntity<String>> getAll(@RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
-                                               @RequestParam(name = "from", required = false) @Positive Integer from,
+                                               @RequestParam(name = "from", required = false) @Min(0) Integer from,
                                                @RequestParam(name = "size", required = false) @Min(1) Integer size) {
         return client.get("/all", userId, getValidatedPaginationParameters(from, size));
     }

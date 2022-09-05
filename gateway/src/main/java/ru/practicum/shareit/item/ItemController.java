@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 
@@ -29,9 +30,10 @@ public class ItemController {
     private final ObjectMapper objectMapper;
 
     @GetMapping
-    public Mono<ResponseEntity<String>> getAllByUserId(@RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
-                                                       @RequestParam(name = "from", required = false) Integer from,
-                                                       @RequestParam(name = "size", required = false) Integer size) {
+    public Mono<ResponseEntity<String>> getAllByUserId(
+            @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
+            @RequestParam(name = "from", required = false) @Min(0) Integer from,
+            @RequestParam(name = "size", required = false) @Min(0) Integer size) {
         return client.get("/", userId, getValidatedPaginationParameters(from, size));
     }
 
@@ -50,16 +52,18 @@ public class ItemController {
 
 
     @PatchMapping("{id}")
-    public Mono<ResponseEntity<String>> update(@RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
-                                               @RequestBody @NotNull ItemDto itemDto,
-                                               @PathVariable @NotNull Long id) throws JsonProcessingException {
+    public Mono<ResponseEntity<String>> update(
+            @RequestHeader("X-Sharer-User-Id") @NotNull Long userId,
+            @RequestBody @NotNull ItemDto itemDto,
+            @PathVariable @NotNull Long id) throws JsonProcessingException {
         return client.patch(String.format("/%d", id), userId, objectMapper.writeValueAsString(itemDto));
     }
 
     @GetMapping("search")
-    public Mono<ResponseEntity<String>> searchByKeyword(@RequestParam(name = "text", defaultValue = "") String keyword,
-                                                        @RequestParam(name = "from", required = false) Integer from,
-                                                        @RequestParam(name = "size", required = false) Integer size) {
+    public Mono<ResponseEntity<String>> searchByKeyword(
+            @RequestParam(name = "text", defaultValue = "") String keyword,
+            @RequestParam(name = "from", required = false) @Min(0) Integer from,
+            @RequestParam(name = "size", required = false) @Min(0) Integer size) {
         if (keyword.isEmpty()) {
             return Mono.just(ResponseEntity.ok().body("[]"));
         }
